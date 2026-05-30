@@ -56,9 +56,18 @@ async def chat_with_ai(data: ChatRequest):
 @router.post("/remediation")
 async def generate_remediation(data: RemediationRequest):
     try:
-        prompt = f"You are an expert Virtual Security Officer. For the domain '{data.domain}', the following security issue was detected during a scan:\n\n{data.issue}\n\nPlease generate a very detailed, step-by-step remediation plan to resolve this exact issue. Format your response clearly in standard Markdown."
+        prompt = f"""You are an elite AI Virtual Security Officer.
+For the domain '{data.domain}', the following security status/issue was detected:
+'{data.issue}'
+
+Please provide:
+1. A clear explanation of what this status means for this specific domain.
+2. If it is a RISK: A detailed, step-by-step remediation plan (including exact commands, tools, and configurations).
+3. If it is SECURE: Professional insights on why it is secure and best practices to maintain this state.
+
+Format your response beautifully using standard Markdown with clear sections and a professional 'Officer' tone."""
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
 
@@ -80,7 +89,7 @@ async def generate_domain_report(data: DomainReportRequest):
         prompt = f"You are an expert Virtual Security Officer. Please analyze the following domain scan data and write a formal, comprehensive Executive Summary Report for the domain '{doc.get('domain')}'. Address the threat score, any open ports, SSL validity, and IP resolution. Format it beautifully using Markdown with sections such as Executive Summary, Vulnerability Analysis, and Recommendations. Keep it professional and readable.\n\nData:\n{domain_data_str}"
         
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         return {"report": response.text}

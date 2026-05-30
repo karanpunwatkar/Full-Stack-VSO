@@ -1,6 +1,6 @@
 // API service — connects to the FastAPI backend at http://localhost:8000
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 export interface DomainAPI {
   id: number;

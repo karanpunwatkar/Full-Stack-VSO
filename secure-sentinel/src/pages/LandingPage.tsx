@@ -34,7 +34,7 @@ const features = [
 const stats = [
   { value: "10K+", label: "Domains Secured" },
   { value: "99.9%", label: "Uptime" },
-  { value: "<5min", label: "Scan Time" },
+  { value: "<1min", label: "Scan Time" },
   { value: "24/7", label: "Monitoring" },
 ];
 

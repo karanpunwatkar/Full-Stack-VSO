@@ -92,14 +92,14 @@ const DomainRow = forwardRef<HTMLDivElement, {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 relative z-10">
         {/* View Report (only after a scan) */}
         {hasReport && (
           <Button
             size="sm"
             variant="outline"
             className="border-primary/30 hover:bg-primary/10 text-primary text-xs"
-            onClick={() => navigate(`/domains/${domain.id}`)}
+            onClick={() => navigate(`/domains/${domain.id}?generate=true`)}
           >
             <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
             Report
@@ -252,8 +252,7 @@ export default function DomainsPage() {
         title: "Scan complete 🛡️",
         description: `${updated.domain} — score: ${updated.threat_score}/100 (${updated.status})`,
       });
-      // Navigate to the report after scan
-      navigate(`/domains/${id}`);
+      // ✅ Removed automatic navigation—stay on list to see live update!
     } catch (err: any) {
       toast({ title: "Scan failed", description: err.message, variant: "destructive" });
     } finally {

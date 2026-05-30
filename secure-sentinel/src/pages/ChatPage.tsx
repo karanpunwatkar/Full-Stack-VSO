@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { mockChatMessages, chatSuggestions } from "@/lib/mock-data";
 import { api, ChatMessage } from "@/lib/api";
@@ -14,6 +15,17 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-send message from query param
+  useEffect(() => {
+    const msg = searchParams.get("message");
+    if (msg) {
+      // Clear param immediately to avoid double-send on refresh
+      setSearchParams({}, { replace: true });
+      sendMessage(msg);
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });

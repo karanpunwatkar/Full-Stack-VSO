@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 @layer base {
   :root {
@@ -74,11 +74,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-display);
   }
 
@@ -130,14 +131,22 @@
 
   /* ===== CARD STYLES ===== */
   .card-cyber {
-    @apply rounded-xl border border-border relative overflow-hidden;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    position: relative;
+    overflow: hidden;
     background: var(--gradient-card);
     box-shadow: var(--shadow-card);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .card-cyber::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 500ms;
+    pointer-events: none;
     background: linear-gradient(135deg, hsl(160 100% 45% / 0.05), transparent 60%);
   }
   .card-cyber:hover {
@@ -150,7 +159,8 @@
   }
 
   .card-hover {
-    @apply transition-all duration-300;
+    transition-property: all;
+    transition-duration: 300ms;
     box-shadow: var(--shadow-card);
   }
   .card-hover:hover {
@@ -168,10 +178,14 @@
 
   /* ===== SEVERITY BADGES ===== */
   .severity-critical {
-    @apply bg-destructive/15 text-destructive border-destructive/30;
+    background-color: hsl(var(--destructive) / 0.15);
+    color: hsl(var(--destructive));
+    border-color: hsl(var(--destructive) / 0.3);
   }
   .severity-high {
-    @apply bg-destructive/15 text-destructive border-destructive/30;
+    background-color: hsl(var(--destructive) / 0.15);
+    color: hsl(var(--destructive));
+    border-color: hsl(var(--destructive) / 0.3);
   }
   .severity-medium {
     background: hsl(var(--warning) / 0.15);
@@ -186,11 +200,16 @@
 
   /* ===== PULSE / GLOW ANIMATIONS ===== */
   .pulse-dot {
-    @apply relative;
+    position: relative;
   }
   .pulse-dot::after {
     content: '';
-    @apply absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full;
+    position: absolute;
+    top: -0.125rem;
+    right: -0.125rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
     background: hsl(var(--primary));
     animation: pulse-ring 2s ease-out infinite;
   }
@@ -227,17 +246,25 @@
     background: linear-gradient(135deg, hsl(160 100% 45% / 0.4), hsl(200 100% 60% / 0.2), hsl(265 90% 65% / 0.1));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
   }
 
   /* ===== LIVE INDICATOR ===== */
   .live-indicator {
-    @apply flex items-center gap-1.5 text-xs font-medium;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
     color: hsl(var(--success));
   }
   .live-indicator::before {
     content: '';
-    @apply w-2 h-2 rounded-full;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
     background: hsl(var(--success));
     animation: pulse-glow 2s ease-in-out infinite;
   }
@@ -251,7 +278,10 @@
 
   /* ===== SCAN LINE ===== */
   .scan-line {
-    @apply absolute left-0 right-0 h-px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
     background: linear-gradient(90deg, transparent, hsl(160 100% 45% / 0.5), transparent);
     animation: scan-move 3s ease-in-out infinite;
   }

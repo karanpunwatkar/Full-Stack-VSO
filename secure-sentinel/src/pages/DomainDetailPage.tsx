@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { SecurityScoreRing } from "@/components/SecurityScoreRing";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft, Shield, Lock, Globe, Server, AlertTriangle,
@@ -152,8 +152,9 @@ export default function DomainDetailPage() {
   const [resolvingLoading, setResolvingLoading] = useState<Record<string, boolean>>({});
   const [executiveReport, setExecutiveReport] = useState<string | null>(null);
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const handleGenerateReport = async () => {
+  const handleGenerateReport = useCallback(async () => {
     if (!domain) return;
     setGeneratingReport(true);
     try {
@@ -165,7 +166,16 @@ export default function DomainDetailPage() {
     } finally {
       setGeneratingReport(false);
     }
-  };
+  }, [domain]);
+
+  useEffect(() => {
+    // Auto-trigger report if 'generate=true' is in the URL
+    if (searchParams.get("generate") === "true" && domain && !generatingReport && !executiveReport) {
+      handleGenerateReport();
+      // Remove query param to prevent re-triggering on refresh
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, domain, generatingReport, executiveReport, handleGenerateReport, setSearchParams]);
 
   const handleResolveIssue = async (itemId: string) => {
     if (!domain) return;
@@ -195,17 +205,10 @@ export default function DomainDetailPage() {
     }
   };
 
-  const handleGetRemediation = async (itemId: string, issue: string) => {
+  const handleGetRemediation = (itemId: string, issue: string) => {
     if (!domain) return;
-    setRemediationLoading((prev) => ({ ...prev, [itemId]: true }));
-    try {
-      const { remediation_plan } = await api.getRemediationPlan(domain.domain, issue);
-      setRemediationData((prev) => ({ ...prev, [itemId]: remediation_plan }));
-    } catch (err: any) {
-      toast({ title: "Failed to get AI remediation", description: err.message, variant: "destructive" });
-    } finally {
-      setRemediationLoading((prev) => ({ ...prev, [itemId]: false }));
-    }
+    const fullPrompt = `I need a step-by-step fix for domain ${domain.domain}. The intelligence report detected: "${issue}". Please provide a detailed, actionable remediation plan.`;
+    navigate(`/chat?message=${encodeURIComponent(fullPrompt)}`);
   };
 
   const fetchDomain = useCallback(async () => {
@@ -451,24 +454,21 @@ export default function DomainDetailPage() {
                             </div>
                           )}
 
-                          {(item.status === "fail" || item.status === "warn") && (
-                            <div className="mt-4 border-t border-border/10 pt-4">
-                              {!remediationData[item.id] ? (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-primary/40 text-primary hover:bg-primary/10 text-xs shadow-[0_0_10px_rgba(0,255,170,0.15)] transition-all"
-                                  onClick={() => handleGetRemediation(item.id, item.description)}
-                                  disabled={remediationLoading[item.id]}
-                                >
-                                  {remediationLoading[item.id] ? (
-                                    <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                                  ) : (
-                                    <Cpu className="h-3.5 w-3.5 mr-2" />
-                                  )}
-                                  {remediationLoading[item.id] ? "Officer Analyzing..." : "Ask AI Officer for Step-by-Step Fix"}
-                                </Button>
-                              ) : (
+                          <div className="mt-4 border-t border-border/10 pt-4">
+                            {!remediationData[item.id] ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-primary/40 text-primary hover:bg-primary/10 text-xs shadow-[0_0_10px_rgba(0,255,170,0.15)] transition-all"
+                                onClick={() => handleGetRemediation(item.id, item.description)}
+                                disabled={false}
+                              >
+                                <Cpu className="h-3.5 w-3.5 mr-2" />
+                                {item.status === "pass" 
+                                  ? "Ask AI Officer for Status Insights" 
+                                  : "Ask AI Officer for Step-by-Step Fix"}
+                              </Button>
+                            ) : (
                                 <div className="p-5 rounded-xl bg-background/50 backdrop-blur-md border border-primary/20 mt-2 text-sm text-foreground/90 markdown-format prose prose-invert prose-p:leading-relaxed prose-headings:text-primary max-w-none prose-a:text-primary relative group">
                                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-primary/20">
                                     <div className="flex items-center gap-2 text-primary font-mono text-xs uppercase tracking-widest">
@@ -492,7 +492,6 @@ export default function DomainDetailPage() {
                                 </div>
                               )}
                             </div>
-                          )}
                         </div>
                       </div>
                     </motion.div>
