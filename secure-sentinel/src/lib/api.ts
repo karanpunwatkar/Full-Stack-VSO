@@ -1,6 +1,8 @@
-// API service — connects to the FastAPI backend at http://localhost:8000
+// API service — connects to the FastAPI backend at https://virtual-security-officer-backend.onrender.com/api/v1
 
-const BASE_URL = import.meta.env.VITE_API_URL || "https://virtual-security-officer-backend.onrender.com";
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://virtual-security-officer-backend.onrender.com/api/v1";
 
 export interface DomainAPI {
   id: number;
